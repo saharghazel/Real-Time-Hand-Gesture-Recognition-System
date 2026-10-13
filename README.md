@@ -36,11 +36,11 @@ Développé lors d'un stage au **Novation City** (centre d'excellence Industrie 
 cycle-monitoring-vision/
 ├── scripts/              # Code Python du pipeline et du dashboard Flask
 │   └── templates/        # Templates HTML du dashboard
+    └──app.py
 ├── models/               # Modèles TFLite (EfficientDet-Lite0)
 ├── logs/                 # Logs de cycles JSON (générés, non versionnés)
 ├── docs/                 # Documentation, schémas, notes techniques
 ├── requirements.txt
-├──app.py
 ├── .gitignore
 └── README.md
 ```
