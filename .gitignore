@@ -1,0 +1,66 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ===== Environnements =====
+.venv/
+venv/
+env/
+.env
+gesture_env/
+dashboard_env/
+miniforge3/
+.conda/
+
+# ===== Logs et données générées à l'exécution =====
+logs/*
+!logs/.gitkeep
+*.log
+*.json.bak
+
+# ===== Entraînement (volumineux, reproductible sur Colab) =====
+training/dataset/
+training/data/
+*.h5
+*.keras
+*.ckpt
+checkpoints/
+runs/
+
+# ===== Modèles : les .tflite finaux sont versionnés =====
+# (EfficientDet-Lite0 et MobileNetV2 float16 restent petits).
+# Les modèles intermédiaires / moteurs TensorRT sont ignorés :
+*.trt
+*.engine
+*.onnx
+*.pb
+saved_model/
+
+# ===== Médias de test =====
+*.mp4
+*.avi
+*.mov
+captures/
+
+# ===== Secrets / config locale =====
+*.pem
+*.key
+config.local.*
+
+# ===== Éditeurs / OS =====
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Documents de travail (rapport, brouillons) =====
+*.docx
+~$*
+*.tmp
