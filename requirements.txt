@@ -1,0 +1,29 @@
+# ============================================================
+# Dépendances - Pipeline de monitoring de cycle (vision embarquée)
+# Python 3.11 (environnements conda : gesture_env / dashboard_env)
+# ============================================================
+#
+# ATTENTION : ces versions sont épinglées volontairement.
+#  - mediapipe > 0.10.18 : plus de wheels aarch64 (Jetson Nano / Pi)
+#  - numpy 2.x           : exige un GLIBCXX absent d'Ubuntu 18.04 (Jetson)
+# Ne pas mettre à jour sans tester sur la cible.
+
+# --- Vision / détection ---
+mediapipe==0.10.18
+opencv-python==4.10.0.84
+numpy==1.26.4
+
+# --- Inférence TFLite (EfficientDet-Lite0, MobileNetV2) ---
+ai-edge-litert
+
+# --- Dashboard web (supervision temps réel, flux MJPEG) ---
+flask
+
+# ------------------------------------------------------------
+# Hors requirements.txt (installation système / manuelle) :
+#  - Jetson : libgomp.so.1 via LD_PRELOAD + libstdcxx-ng via
+#    LD_LIBRARY_PATH (hooks d'activation conda) - voir README.md
+#  - Raspberry Pi (Bookworm) : sudo apt install libopenblas-dev
+#  - Entraînement MobileNetV2 : Google Colab (tensorflow/keras
+#    NE sont PAS nécessaires sur la cible embarquée)
+# ------------------------------------------------------------
