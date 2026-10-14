@@ -1,55 +1,63 @@
-# Real-Time-Hand-Gesture-Recognition-System
-Embedded computer vision system for hand detection and real-time work-cycle identification (MediaPipe, OpenCV), with a monitoring dashboard (Flask). Prototyped on Raspberry Pi then migrated to Jetson Nano for improved real-time performance.
+# Real-Time Hand Gesture Recognition & Industrial Work Cycle Monitoring
 
-# Cycle Monitoring Vision
+An embedded computer vision system for real-time hand tracking, object detection, and automated industrial work cycle monitoring. Developed using **MediaPipe, OpenCV, TensorFlow Lite, and Flask**, the system was initially implemented on Raspberry Pi 4 and subsequently migrated to NVIDIA Jetson Nano to support improved real-time processing capabilities.
 
-Pipeline de **vision par ordinateur embarquée** pour le suivi automatique des cycles d'un poste de travail industriel (**prise → travail → dépose**), avec détection des mains et de leur position (gauche, droite, haut, bas) et supervision en temps réel via un dashboard web.
+## Project Overview
 
-Développé lors d'un stage au **Novation City** (centre d'excellence Industrie 4.0, Sousse, Tunisie) dans le cadre du cursus d'ingénieur en Électronique Industrielle à l'ENISo.
+This project implements an embedded computer vision pipeline to monitor industrial workstation operations by automatically identifying three stages of a work cycle:
 
----
+**Pick → Process → Place**
 
-## Fonctionnalités
+The system detects hand movements and positions (left, right, up, down) and provides real-time visualization through a Flask-based web dashboard.
 
-- Détection des mains avec **MediaPipe Hands**
-- Détection d'objets avec **EfficientDet-Lite0** (TFLite)
-- **Machine à états** du cycle : prise → travail → dépose
-- Journalisation des cycles au format **JSON** (`logs/`)
-- **Dashboard Flask** : flux vidéo MJPEG, boutons Start/Stop, validation manuelle des cycles
+Developed during an internship at **Novation City**, an Industry 4.0 excellence center in Sousse, Tunisia, as part of the Industrial Electronics Engineering curriculum at the National Engineering School of Sousse (ENISo).
 
+## Key Features
 
-## Cibles matérielles
+- Real-time hand detection and tracking using **MediaPipe Hands**
+- Object detection using **EfficientDet-Lite0 (TensorFlow Lite)**
+- Work cycle recognition through a **finite state machine (FSM)**
+- Hand position classification: left, right, up, and down
+- Automated cycle logging in **JSON format**
+- **Flask monitoring dashboard** featuring MJPEG video streaming, Start/Stop controls, and manual cycle validation
 
-| Cible | Détails |
-|---|---|
-| Raspberry Pi 4 | Pipeline complet validé |
-| Jetson Nano | Carte porteuse Auvidea JN30D, L4T R32.7.1 / JetPack 4.6.x, Ubuntu 18.04 (aarch64) |
-| Caméra | Webcam USB (branchée directement, pas via un hub) |
+## Hardware Platforms
 
-> Inférence actuellement sur **CPU** (XNNPACK). La conversion **TensorRT** pour exploiter le GPU du Jetson est une étape à venir.
+| Platform           | Implementation                                                                  |
+| ------------------ | ------------------------------------------------------------------------------- |
+| Raspberry Pi 4     | Complete computer vision pipeline validated                                     |
+| NVIDIA Jetson Nano | Auvidea JN30D carrier board, L4T R32.7.1, JetPack 4.6.x, Ubuntu 18.04 (aarch64) |
+| Camera             | USB webcam connected directly to the board                                      |
 
----
+**Inference:** Currently performed on the CPU using XNNPACK. TensorRT optimization for GPU-accelerated inference on Jetson Nano is planned as a future improvement.
 
-## Structure du dépôt
+## Repository Structure
 
-```
+```text
 cycle-monitoring-vision/
-├── scripts/              # Code Python du pipeline et du dashboard Flask
-│   └── templates/        # Templates HTML du dashboard
-    └──app.py
-├── models/               # Modèles TFLite (EfficientDet-Lite0)
-├── logs/                 # Logs de cycles JSON (générés, non versionnés)
-├── docs/                 # Documentation, schémas, notes techniques
+├── scripts/
+│   ├── app.py
+│   └── templates/
+│       └── dashboard.html
+├── models/
+│   └── [EfficientDet-Lite0 TFLite model]
+├── logs/
+├── docs/
 ├── requirements.txt
 ├── .gitignore
 └── README.md
 ```
 
----
+- `scripts/`: Computer vision pipeline and Flask dashboard
+- `models/`: TensorFlow Lite object detection models
+- `logs/`: Generated JSON work cycle logs (excluded from version control)
+- `docs/`: Technical documentation, system architecture, and diagrams
 
 ## Installation
 
-### 1. Environnement conda (Miniforge)
+### 1. Python Environment
+
+Create and activate a Conda environment using Miniforge:
 
 ```bash
 conda create -n gesture_env python=3.11 -y
@@ -57,38 +65,43 @@ conda activate gesture_env
 pip install -r requirements.txt
 ```
 
-Après chaque redémarrage de la carte :
+After restarting the device:
 
 ```bash
 source ~/.bashrc
 conda activate gesture_env
-# secours : source ~/miniforge3/etc/profile.d/conda.sh
 ```
 
-### 2. Spécificités Jetson Nano (JN30D)
+### 2. NVIDIA Jetson Nano Configuration
 
-- Versions **épinglées** dans `requirements.txt` (mediapipe 0.10.18, OpenCV 4.10.0.84, NumPy 1.26.4) : les versions plus récentes ne fonctionnent pas sur aarch64 / Ubuntu 18.04.
-- Deux hooks d'activation conda permanents sont nécessaires :
-  - `LD_LIBRARY_PATH` pour `libstdcxx-ng`
-  - `LD_PRELOAD` pour `libgomp.so.1` (problème de bloc TLS statique sur aarch64)
-- **Ne pas** réinstaller le méta-paquet `nvidia-jetpack` (trop volumineux pour l'eMMC de 14 Go, inutile pour ce pipeline).
-- Utiliser le BSP **Auvidea** (et non l'image SD officielle NVIDIA) pour la JN30D.
-- Caméra CSI : nécessite un pipeline GStreamer (`nvarguscamerasrc`) et non `cv2.VideoCapture(0)`.
-- Réseau via ICS Windows (PC `192.168.137.1`, Jetson `192.168.137.50`) : la case ICS se décoche après la mise en veille, à réactiver manuellement.
+The Jetson Nano implementation uses the **Auvidea JN30D carrier board** with the corresponding Auvidea Board Support Package (BSP).
 
-### 3. Spécificités Raspberry Pi
+**Software environment:**
+
+- L4T R32.7.1 / JetPack 4.6.x
+- Ubuntu 18.04 (aarch64)
+- MediaPipe 0.10.18
+- OpenCV 4.10.0.84
+- NumPy 1.26.4
+
+Additional environment configuration may be required for `libstdcxx-ng` and `libgomp.so.1` shared library compatibility.
+
+The current implementation uses a USB webcam. CSI camera integration requires a GStreamer pipeline using `nvarguscamerasrc`.
+
+### 3. Raspberry Pi 4 Configuration
+
+Install the required system dependencies:
 
 ```bash
-sudo apt update          # ne PAS faire "apt upgrade" en cours de projet
-sudo apt install libopenblas-dev   # remplace libatlas-base-dev sur Bookworm
+sudo apt update
+sudo apt install libopenblas-dev
 ```
 
-- Arrêt propre : `sudo shutdown -h now` (jamais de débranchement direct, risque de corruption de la carte SD).
-- Si la caméra ne se rouvre pas au second lancement : `pkill -9 -f app.py` ou redémarrer.
+The application uses a USB camera for real-time video acquisition.
 
----
+## Running the Application
 
-## Utilisation
+Activate the environment and launch the application:
 
 ```bash
 conda activate gesture_env
@@ -96,21 +109,33 @@ cd scripts
 python app.py
 ```
 
-Puis ouvrir le dashboard : `http://<ip-de-la-carte>:5000`
+Access the dashboard at:
 
-> Adapter le nom du script et le port si ton point d'entrée est différent.
+```text
+http://<device-ip>:5000
+```
 
----
+## Technical Implementation
 
-## Notes techniques
+**Hand Tracking:** MediaPipe Hands detects and tracks hand landmarks for real-time position analysis.
 
-- `np.ascontiguousarray(crop)` est requis avant de construire un `mp.Image()` à partir d'une tranche NumPy.
-- MediaPipe sous Linux utilise le délégué CPU (XNNPACK) par défaut : le GPU CUDA n'est pas utilisé automatiquement.
-- Entraînement MobileNetV2 (Colab) : learning rate bas (1e-6), ~15 couches dégelées, rechargement explicite du meilleur checkpoint global entre les deux phases pour éviter l'oubli catastrophique.
+**Object Detection:** EfficientDet-Lite0 performs object detection using TensorFlow Lite inference.
 
+**Cycle Recognition:** A finite state machine identifies transitions between the Pick, Process, and Place stages.
 
-## Auteur
+**Real-Time Monitoring:** Flask provides an MJPEG video stream, cycle visualization, manual validation controls, and JSON-based event logging.
 
-**Sahar Ghazel** — Ingénierie en Électronique Industrielle, ENISo (École Nationale d'Ingénieurs de Sousse) 
+**Performance Optimization:** NumPy memory-contiguous image arrays are used for compatibility with MediaPipe image processing. CPU inference uses XNNPACK, with future TensorRT integration planned for Jetson Nano GPU acceleration.
 
+## Future Improvements
 
+- TensorRT integration for GPU-accelerated inference
+- Real-time performance benchmarking on Jetson Nano
+- Improved industrial work cycle classification and monitoring
+
+## Author
+
+**Sahar Ghazel**
+Industrial Electronics Engineering — National Engineering School of Sousse (ENISo), Tunisia
+
+**Areas of Interest:** Embedded Systems | Edge AI | Computer Vision | Robotics | Industrial Automation
